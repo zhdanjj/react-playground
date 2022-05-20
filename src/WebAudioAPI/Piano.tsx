@@ -24,8 +24,18 @@ const notes = [
 export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
 
-  const context: AudioContext = new AudioContext();
-  
+  let context: AudioContext = {} as AudioContext;
+
+  useEffect(() => {
+    console.log('created AudioContext')
+    context = new AudioContext();
+
+    return () => {
+      context.close();
+      console.log('closed AudioContext')
+    }
+  }, [])
+
   function playNote (frequency: number) {
     const o = context.createOscillator()
     const g = context.createGain()
@@ -34,14 +44,11 @@ export function Piano () {
     o.frequency.value = frequency
     g.connect(context.destination)
     o.start(0)
-  
+
     g.gain.exponentialRampToValueAtTime(
       0.00001, context.currentTime + 1
     )
   }
-
-  // TODO: наверно стоит перенести создание AudioContext в useEffect
-  // и выгружать его после размонтирования
 
   return (
     <div>
