@@ -34,7 +34,7 @@ export function Piano () {
       context.close();
       console.log('closed AudioContext')
     }
-  }, [])
+  })
 
   function playNote (frequency: number) {
     const o = context.createOscillator()
