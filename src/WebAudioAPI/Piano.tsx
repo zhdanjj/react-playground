@@ -6,23 +6,22 @@ import { useEffect, useState } from "react";
 const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'] as const;
 type WaveTypesType = typeof waveTypes[number];
 
-const notes = [
-  ['c',  261.6],
-  ['c#', 277.2],
-  ['d',  293.7],
-  ['d#', 311.1],
-  ['e',  329.6],
-  ['f',  349.2],
-  ['f#', 370.0],
-  ['g',  392.0],
-  ['g#', 415.3],
-  ['a',  440.0],
-  ['a#', 466.2],
-  ['b4',  493.9],
-];
+const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+// https://gist.github.com/marcgg/94e97def0e8694f906443ed5262e9cbb?permalink_comment_id=3896533#gistcomment-3896533
+// Правда значения на доли отличаются от тех, что в таблице
+function getPitch(note: string, octave: number) {
+  // ("A", 4) => 440
+  // multiply by 2^(1/12) N times to get N steps higher
+  var step = NOTES.indexOf(note);
+  var power = Math.pow(2, (octave * 12 + step - 57) / 12);
+  var pitch = 440 * power;
+  return pitch;
+}
 
 export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
+  const [octave, setOctave] = useState<number>(4)
 
   let context: AudioContext = {} as AudioContext;
 
@@ -50,6 +49,13 @@ export function Piano () {
     )
   }
 
+  function onOctaveChange (event: any) {
+    const next = parseInt(event.target.value);
+    if (next >= 1 && next <= 10) {
+      setOctave(next)
+    }
+  }
+
   return (
     <div>
       <div style={{marginBottom: '8px'}}>{
@@ -68,11 +74,26 @@ export function Piano () {
           )
         )
       }</div>
+      <div style={{marginBottom: '8px'}}>
+        <label>
+          octave
+          <input
+            type="number"
+            value={octave}
+            onChange={onOctaveChange}
+          />
+        </label>
+      </div>
       <div className="notes">{
-        notes.map(
-          note => <button key={note[1]} onClick={() => playNote(note[1] as number)}>
-            {note[0]}
-          </button>
+        NOTES.map(
+          note => (
+            <button
+              key={note}
+              onClick={() => playNote(getPitch(note, octave))}
+            >
+              {note}
+            </button>
+          )
         )
       }</div>
     </div>
