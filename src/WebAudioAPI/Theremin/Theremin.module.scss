@@ -1,0 +1,15 @@
+.Theremin__area {
+  background: burlywood;
+  border: 2px dotted gray;
+  height: 100px;
+}
+
+.Theremin__labelsLine {
+  display: flex;
+  justify-content: space-between;
+  height: 20px;
+}
+
+.Theremin__label {
+  font-size: 12px;
+}
