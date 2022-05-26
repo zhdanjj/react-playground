@@ -26,12 +26,10 @@ export function Piano () {
   let context: AudioContext = {} as AudioContext;
 
   useEffect(() => {
-    console.log('created AudioContext')
     context = new AudioContext();
 
     return () => {
       context.close();
-      console.log('closed AudioContext')
     }
   })
 
