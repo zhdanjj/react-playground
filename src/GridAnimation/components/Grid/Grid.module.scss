@@ -1,0 +1,40 @@
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(var(--width), min-content);
+  gap: 4px;
+}
+
+.GridCell {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+
+  &::before {
+    content: '';
+    background: #bebebe;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    animation: animate-closing 1s ease-in-out;
+  }
+}
+
+.GridCell_open::before {
+  animation: animate-opening 1s ease-in-out forwards;
+}
+
+@keyframes animate-closing {
+  0%   { transform: scale(0) }
+  70%  { transform: scale(1.2) }
+  100% { transform: scale(1) }
+}
+
+@keyframes animate-opening {
+  30%  { transform: scale(1.2) }
+  100% { transform: scale(0) }
+}
