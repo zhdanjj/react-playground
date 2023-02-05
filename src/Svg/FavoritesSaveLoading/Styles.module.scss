@@ -1,0 +1,59 @@
+.Button {
+  margin-top: 20px;
+  width: 32px;
+  height: 32px;
+  transform-origin: top left;
+  transform: scale(5);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Svg {
+  vertical-align: top;
+}
+
+
+
+$heartFull: 38.51615524291992; // path.getTotalLength
+$heartOffset: 0;
+.Heart {
+  animation: heart .7s linear forwards;
+  stroke-dasharray: $heartFull;
+}
+
+@keyframes heart {
+  0% {
+    stroke-dashoffset: 0 - $heartOffset;
+  }
+
+  //50% {
+  //  stroke-dashoffset: 38.51615524291992;
+  //}
+
+  100% {
+    stroke-dashoffset: $heartFull - $heartOffset;
+  }
+}
+
+$circleFull: 43.698883056640625; // path.getTotalLength
+$circleOffset: 0;
+.Circle {
+  transform-origin: center;
+  transform: rotate(90deg);
+  animation: loadingCircle 2s linear infinite;
+  stroke-dasharray: $circleFull;
+  //stroke-dashoffset: $circleFull;
+}
+
+@keyframes loadingCircle {
+  0% {
+    stroke-dashoffset: $circleFull;
+  }
+
+  100% {
+    stroke-dashoffset: -$circleFull;
+  }
+}
