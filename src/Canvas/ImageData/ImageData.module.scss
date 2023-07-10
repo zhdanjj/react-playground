@@ -1,0 +1,14 @@
+.ImageData {
+  width: 100%;
+  height: calc(100vh - 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ImageData__logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  opacity: .001;
+}

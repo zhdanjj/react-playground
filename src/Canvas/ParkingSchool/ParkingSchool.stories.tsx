@@ -4,4 +4,4 @@ export default {
   title: 'Canvas / Parking School'
 }
 
-export const ParkingSchool = () => <ParkingSchool_ />;
+export const ParkingSchool = () => <ParkingSchool_/>;
