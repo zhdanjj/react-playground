@@ -1,0 +1,11 @@
+.Pads__row {
+  display: flex;
+}
+
+.Pads__item {
+  background: #333;
+
+  &:nth-child(4n + 1) {
+    margin-left: 2px;
+  }
+}
