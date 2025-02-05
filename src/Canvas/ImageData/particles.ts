@@ -1,4 +1,5 @@
 // @ts-nocheck
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 function Particle(x, y, color) {
   this.finished = false;
