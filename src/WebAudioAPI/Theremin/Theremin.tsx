@@ -9,7 +9,7 @@ export function Theremin () {
   const [currentFrequency, setCurrentFrequency] = useState(0)
   const [wasUserGesture, setWasUserGesture] = useState(true)
 
-  const MIN = 80
+  const MIN = 20
   const MAX = 2000
 
   function onMouseEnter (event: MouseEvent<HTMLDivElement>) {
