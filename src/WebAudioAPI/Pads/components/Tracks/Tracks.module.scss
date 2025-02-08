@@ -1,0 +1,30 @@
+.Tracks__row {
+  display: flex;
+}
+
+.Tracks__item {
+  cursor: pointer;
+  background: #27445D;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #fff;
+  position: relative;
+
+  &:nth-child(4n + 1) {
+    margin-left: 2px;
+  }
+}
+
+.Tracks__item_active {
+  background: #497D74;
+}
+
+.Tracks__item_checked::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: #EFE9D5;
+}
