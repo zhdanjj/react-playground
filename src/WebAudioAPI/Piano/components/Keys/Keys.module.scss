@@ -1,4 +1,7 @@
 .Keys {
+  --white-width: 50px;
+  --black-width: 40px;
+
   display: flex;
   height: 200px;
 }
@@ -8,7 +11,7 @@
   appearance: none;
   padding: 0;
   border: 1px solid #000;
-  width: 40px;
+  width: var(--white-width);
   height: 100%;
   background: #fff;
   margin-left: -1px;
@@ -21,18 +24,25 @@
 .Keys__item_black {
   position: relative;
   background: #000;
-  width: 30px;
+  width: var(--black-width);
   height: 80%;
-  margin-left: -15px;
-  margin-right: -15px;
+  margin-left: calc(var(--black-width) / -2);
+  margin-right: calc(var(--black-width) / -2);;
 }
 
 .Keys__item:active {
   box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset,0 -2px 2px 3px rgba(0,0,0,0.6) inset,0 1px 2px rgba(0,0,0,0.5);
 }
 
-.Keys__label {
-  font-size: 6px;
+.Keys__labels {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  font-size: 10px;
   color: #fff;
   mix-blend-mode: difference;
+}
+
+.Keys__note {
+  opacity: 0.4;
 }

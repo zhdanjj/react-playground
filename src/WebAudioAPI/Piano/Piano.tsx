@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { KeyboardEventHandler, useEffect, useState } from "react";
 import { Keys } from './components/Keys/Keys';
 import { notes } from './utils/notes'
+import { keys } from './utils/keys';
 
 // https://marcgg.com/blog/2016/11/01/javascript-audio/
 
@@ -12,8 +13,10 @@ export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
   const [octave, setOctave] = useState<number>(4)
 
-  const startIdx = octave * 12 - 7;
-  const visibleNotes = notes.slice(startIdx, startIdx + 24);
+  const startIdx = octave * 12 - 3;
+  const visibleNotes: [string, number, string][] = notes
+    .slice(startIdx, startIdx + 18)
+    .map((v, i) => [...v, keys[i]])
 
   let context: AudioContext = {} as AudioContext;
 
@@ -25,18 +28,30 @@ export function Piano () {
     }
   })
 
-  function playNote (frequency: number) {
+  function createOscillator(freq: number, detune: number) {
     const o = context.createOscillator()
     const g = context.createGain()
     o.type = waveType
+    o.detune.value = detune;
     o.connect(g)
-    o.frequency.value = frequency
+    o.frequency.value = freq
     g.connect(context.destination)
     o.start(0)
 
     g.gain.exponentialRampToValueAtTime(
-      0.00001, context.currentTime + 1
+      0.00001, context.currentTime + 3
     )
+  }
+
+  function noteOn(frequency: number) {
+    const detune = 0;
+    createOscillator(frequency, 0)
+    // createOscillator(frequency, -detune)
+    // createOscillator(frequency, detune)
+  }
+
+  function noteOff() {
+
   }
 
   function onOctaveChange (event: any) {
@@ -46,8 +61,18 @@ export function Piano () {
     }
   }
 
+  function onKeyDown(event: React.KeyboardEvent) {
+    const k = event.key;
+    if (keys.includes(k)) {
+      event.preventDefault();
+      const note = visibleNotes[keys.indexOf(k)]
+      console.log('noteOn', note)
+      noteOn(note![1])
+    }
+  }
+
   return (
-    <div>
+    <div onKeyDown={onKeyDown}>
       <div style={{marginBottom: '8px'}}>{
         waveTypes.map(
           t => (
@@ -77,7 +102,8 @@ export function Piano () {
       <div className="notes">
         <Keys
           notes={visibleNotes}
-          onPress={pitch => playNote(pitch)}
+          onPress={pitch => noteOn(pitch)}
+          onOff={() => noteOff()}
         ></Keys>
       </div>
     </div>
