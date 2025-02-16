@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Keys } from './components/Keys/Keys';
+import { notes } from './utils/notes'
 
 // https://marcgg.com/blog/2016/11/01/javascript-audio/
 
@@ -6,22 +8,12 @@ import { useEffect, useState } from "react";
 const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'] as const;
 type WaveTypesType = typeof waveTypes[number];
 
-const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-
-// https://gist.github.com/marcgg/94e97def0e8694f906443ed5262e9cbb?permalink_comment_id=3896533#gistcomment-3896533
-// Правда значения на доли отличаются от тех, что в таблице
-function getPitch(note: string, octave: number) {
-  // ("A", 4) => 440
-  // multiply by 2^(1/12) N times to get N steps higher
-  var step = NOTES.indexOf(note);
-  var power = Math.pow(2, (octave * 12 + step - 57) / 12);
-  var pitch = 440 * power;
-  return pitch;
-}
-
 export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
   const [octave, setOctave] = useState<number>(4)
+
+  const startIdx = octave * 12 - 7;
+  const visibleNotes = notes.slice(startIdx, startIdx + 24);
 
   let context: AudioContext = {} as AudioContext;
 
@@ -82,18 +74,12 @@ export function Piano () {
           />
         </label>
       </div>
-      <div className="notes">{
-        NOTES.map(
-          note => (
-            <button
-              key={note}
-              onClick={() => playNote(getPitch(note, octave))}
-            >
-              {note}
-            </button>
-          )
-        )
-      }</div>
+      <div className="notes">
+        <Keys
+          notes={visibleNotes}
+          onPress={pitch => playNote(pitch)}
+        ></Keys>
+      </div>
     </div>
   );
 }
