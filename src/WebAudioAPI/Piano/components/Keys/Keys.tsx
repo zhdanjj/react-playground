@@ -3,8 +3,8 @@ import s from './Keys.module.scss';
 
 type Props = {
   notes: [string, number, string][],
-  onPress: (pitch: number) => void,
-  onOff: () => void,
+  onPress: (note: [string, number, string]) => void,
+  onOff: (note: [string, number, string]) => void,
 }
 
 const isBlack = (note: string) => 
@@ -14,19 +14,19 @@ export function Keys({ notes, onPress, onOff }: Props) {
   return (
     <div className={s.Keys}>
       {
-        notes.map(([note, pitch, key]) => (
+        notes.map((note) => (
           <button
             className={classnames({
               [s.Keys__item]: true,
-              [s.Keys__item_black]: isBlack(note),
+              [s.Keys__item_black]: isBlack(note[0]),
             })}
-            key={note}
-            onMouseDown={() => onPress(pitch)}
-            onMouseUp={() => onOff()}
+            key={note[0]}
+            onMouseDown={() => onPress(note)}
+            onMouseUp={() => onOff(note)}
           >
             <span className={s.Keys__labels}>
-            <span className={s.Keys__note}>{note}</span>
-            <span className={s.Keys__key}>{key}</span>
+            <span className={s.Keys__note}>{note[0]}</span>
+            <span className={s.Keys__key}>{note[2]}</span>
             </span>
           </button>
         ))
