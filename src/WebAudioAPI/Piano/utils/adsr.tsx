@@ -7,9 +7,9 @@ export interface ADSR {
 
 export function getDefaultAdsr() {
   return {
-    attack: 0,
-    decay: 0,
-    sustain: 1,
-    release: 0,
+    attack: .01,
+    decay: .2,
+    sustain: .2,
+    release: .3,
   };
 }

@@ -18,6 +18,8 @@ type PlayingNote = {
   g: GainNode,
 }
 
+const STAGE_MAX_TIME = 3;
+
 let context: AudioContext = {} as AudioContext; // плохо, нужно null по идее
 
 export function Piano () {
@@ -50,12 +52,16 @@ export function Piano () {
 
     o.start(context.currentTime)
 
-    g.gain.setValueAtTime(0, context.currentTime)
-    g.gain.linearRampToValueAtTime(
-      1, context.currentTime + .2
-    )
+    const now = context.currentTime;
+    const atkDuration = adsr.attack * STAGE_MAX_TIME;
+    const atkEndTime = now + atkDuration;
+    const decayDuration = adsr.decay * STAGE_MAX_TIME;
 
-    return {o, g};
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(1, atkEndTime);
+    g.gain.setTargetAtTime(adsr.sustain, atkEndTime, decayDuration);
+
+    return { o, g };
   }
 
   function noteOn(note: string) {
@@ -70,21 +76,23 @@ export function Piano () {
   function noteOff(note: string) {
     console.log('noteOff', note, context.currentTime)
     const playingNote = playingNotes[note];
-    playingNote.g.gain.cancelScheduledValues(context.currentTime)
+    const { g } = playingNote;
+    g.gain.cancelScheduledValues(context.currentTime)
+
+    const now = context.currentTime;
+    const relDuration = adsr.release * STAGE_MAX_TIME;
+    const relEndTime = now + relDuration + .001;
 
     // когда плавно выключаем ноту в разных обработчиках почему-то происходит щелчок
     // чтобы избежать, заново устанавливать текущее значение
     // https://stackoverflow.com/a/34480323 (ответ всё ещё не до конца проясняет причину)
-    playingNote.g.gain.setValueAtTime(playingNote.g.gain.value, context.currentTime)
-    playingNote.g.gain.exponentialRampToValueAtTime(
-      .0000001, context.currentTime + 2
-    )
+    g.gain.setValueAtTime(g.gain.value, context.currentTime)
+    g.gain.linearRampToValueAtTime(0, relEndTime);
 
-
-    // setTimeout(() => {
-    //   playingNote.oscillator.disconnect();
-    //   playingNote.gain.disconnect();
-    // }, 2e3)
+    setTimeout(() => {
+      playingNote.o.disconnect();
+      playingNote.g.disconnect();
+    }, STAGE_MAX_TIME * 1e3);
   }
 
   function onOctaveChange (event: any) {
