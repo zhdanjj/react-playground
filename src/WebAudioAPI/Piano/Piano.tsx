@@ -71,11 +71,15 @@ export function Piano () {
     console.log('noteOff', note, context.currentTime)
     const playingNote = playingNotes[note];
     playingNote.g.gain.cancelScheduledValues(context.currentTime)
+
+    // когда плавно выключаем ноту в разных обработчиках почему-то происходит щелчок
+    // чтобы избежать, заново устанавливать текущее значение
+    // https://stackoverflow.com/a/34480323 (ответ всё ещё не до конца проясняет причину)
     playingNote.g.gain.setValueAtTime(playingNote.g.gain.value, context.currentTime)
     playingNote.g.gain.exponentialRampToValueAtTime(
       .0000001, context.currentTime + 2
     )
-    
+
 
     // setTimeout(() => {
     //   playingNote.oscillator.disconnect();
