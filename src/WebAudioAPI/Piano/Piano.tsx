@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { Keys } from './components/Keys/Keys';
 import { Adsr } from './components/Adsr/Adsr';
+import { Echo } from './components/Echo/Echo';
+import { Polyphony } from './components/Polyphony/Polyphony';
 import { notes } from './utils/notes'
 import { keys } from './utils/keys';
 import { getDefaultAdsr } from './utils/adsr';
+import { getDefaultEcho } from './utils/echo';
+import { getDefaultPolyphony } from './utils/polyphony';
 
 // https://www.youtube.com/watch?v=uasGsHf7UYA
 
@@ -14,19 +18,24 @@ const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'] as const;
 type WaveTypesType = typeof waveTypes[number];
 
 type PlayingNote = {
-  o: OscillatorNode,
+  o: OscillatorNode[],
   g: GainNode,
 }
 
 const STAGE_MAX_TIME = 3;
 
 let context: AudioContext = {} as AudioContext; // плохо, нужно null по идее
+let master: GainNode = {} as GainNode;
+let delay: DelayNode = {} as DelayNode;
+let feedback: GainNode = {} as GainNode;
 
 export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
   const [octave, setOctave] = useState<number>(4)
   const [adsr, setAdsr] = useState(getDefaultAdsr());
   const [playingNotes] = useState({} as {[k: string]: PlayingNote})
+  const [echo, setEcho] = useState(getDefaultEcho())
+  const [polyphony, setPolyphony] = useState(getDefaultPolyphony)
 
   const startIdx = octave * 12 - 3;
   const visibleNotes: [string, number, string][] = notes
@@ -35,22 +44,52 @@ export function Piano () {
 
   useEffect(() => {
     context = new AudioContext();
+    master = context.createGain();
+    delay = context.createDelay();
+    feedback = context.createGain();
+
+    master.connect(context.destination);
+    master.connect(delay);
+
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(context.destination);
 
     return () => {
       context.close();
     }
   }, [])
 
+  useEffect(() => {
+    if (echo.enabled) {
+      feedback.gain.value = echo.feedback;
+      delay.delayTime.value = echo.duration;
+    }
+  }, [echo])
+
   function createOscillator(freq: number, detune: number) {
     const o = context.createOscillator()
-    const g = context.createGain()
     o.type = waveType
-    // o.detune.value = detune;
+    o.detune.value = detune;
     o.frequency.value = freq
-    o.connect(g)
-    g.connect(context.destination)
 
     o.start(context.currentTime)
+
+    return o;
+  }
+
+  function createNote(freq: number) {
+    const g = context.createGain()
+
+    const o = []
+
+    for (let i = 0; i < polyphony.oscillatorsCount; i++) {
+      const step = Math.floor(i / 2);
+      const detune = polyphony.detune * step * (i % 2 === 0 ? 1 : -1);
+      const osc = createOscillator(freq, detune);
+      osc.connect(g);
+      o.push(osc)
+    } 
 
     const now = context.currentTime;
     const atkDuration = adsr.attack * STAGE_MAX_TIME;
@@ -61,16 +100,15 @@ export function Piano () {
     g.gain.linearRampToValueAtTime(1, atkEndTime);
     g.gain.setTargetAtTime(adsr.sustain, atkEndTime, decayDuration);
 
+    g.connect(master)
+
     return { o, g };
   }
 
   function noteOn(note: string) {
     console.log('noteOn', note, context.currentTime)
     const freq = notes.find(v => v[0] === note)![1]
-    const detune = 0;
-    playingNotes[note] = createOscillator(freq, detune);
-    // createOscillator(frequency, -detune)
-    // createOscillator(frequency, detune)
+    playingNotes[note] = createNote(freq);
   }
 
   function noteOff(note: string) {
@@ -88,11 +126,6 @@ export function Piano () {
     // https://stackoverflow.com/a/34480323 (ответ всё ещё не до конца проясняет причину)
     g.gain.setValueAtTime(g.gain.value, context.currentTime)
     g.gain.linearRampToValueAtTime(0, relEndTime);
-
-    setTimeout(() => {
-      playingNote.o.disconnect();
-      playingNote.g.disconnect();
-    }, STAGE_MAX_TIME * 1e3);
   }
 
   function onOctaveChange (event: any) {
@@ -150,7 +183,11 @@ export function Piano () {
         ></Keys>
       </div>
 
-      <Adsr adsr={adsr} onChange={(adsr) => {setAdsr(adsr)}}></Adsr>
+      <div className="Controls" style={{display: 'flex'}}>
+        <Adsr adsr={adsr} onChange={(adsr) => {setAdsr(adsr)}}></Adsr>
+        <Echo echo={echo} onChange={(echo) => {setEcho(echo)}}></Echo>
+        <Polyphony polyphony={polyphony} onChange={(polyphony) => {setPolyphony(polyphony)}}></Polyphony>
+      </div>
     </div>
   );
 }
