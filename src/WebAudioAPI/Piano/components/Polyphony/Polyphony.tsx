@@ -15,7 +15,7 @@ export function Polyphony({ polyphony, onChange }: Props) {
         </span>
         <input
           type="range"
-          min="0"
+          min="1"
           max="10"
           step="1"
           value={polyphony.oscillatorsCount}

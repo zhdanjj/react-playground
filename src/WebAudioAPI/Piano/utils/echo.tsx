@@ -6,7 +6,7 @@ export interface IEcho {
 
 export function getDefaultEcho() {
   return {
-    enabled: false,
+    enabled: true,
     duration: .4,
     feedback: .6,
   }

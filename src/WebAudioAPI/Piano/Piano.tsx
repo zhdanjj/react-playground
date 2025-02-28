@@ -55,16 +55,19 @@ export function Piano () {
     feedback.connect(delay);
     delay.connect(context.destination);
 
+    feedback.gain.setValueAtTime(0, context.currentTime);
+
     return () => {
       context.close();
     }
   }, [])
 
   useEffect(() => {
-    if (echo.enabled) {
-      feedback.gain.value = echo.feedback;
-      delay.delayTime.value = echo.duration;
-    }
+    const isOn = echo.enabled;
+    const end = context.currentTime + .1;
+
+    feedback.gain.linearRampToValueAtTime(isOn ? echo.feedback : 0, end);
+    delay.delayTime.linearRampToValueAtTime(isOn ? echo.duration : 0, end);
   }, [echo])
 
   function createOscillator(freq: number, detune: number) {
@@ -115,7 +118,7 @@ export function Piano () {
     console.log('noteOff', note, context.currentTime)
     const playingNote = playingNotes[note];
     const { g } = playingNote;
-    g.gain.cancelScheduledValues(context.currentTime)
+    // g.gain.cancelScheduledValues(context.currentTime)
 
     const now = context.currentTime;
     const relDuration = adsr.release * STAGE_MAX_TIME;

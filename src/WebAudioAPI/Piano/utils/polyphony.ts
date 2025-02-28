@@ -5,7 +5,7 @@ export interface IPolyphony {
 
 export function getDefaultPolyphony() {
   return {
-    oscillatorsCount: 3,
-    detune: 2,
+    oscillatorsCount: 1,
+    detune: 0,
   }
 }
