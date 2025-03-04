@@ -37,6 +37,7 @@ window.master = {} as GainNode;
 let notesMaster: GainNode = {} as GainNode;
 let delay: DelayNode = {} as DelayNode;
 let feedback: GainNode = {} as GainNode;
+let compressor: DynamicsCompressorNode = {} as DynamicsCompressorNode;
 
 export function Piano () {
   const [waveType, setWaveType] = useState<WaveTypesType>(waveTypes[0])
@@ -57,6 +58,7 @@ export function Piano () {
     window.master = window.context.createGain();
     delay = window.context.createDelay();
     feedback = window.context.createGain();
+    compressor = window.context.createDynamicsCompressor();
 
     notesMaster.connect(window.master);
     notesMaster.connect(delay);
@@ -65,7 +67,8 @@ export function Piano () {
     feedback.connect(delay);
     delay.connect(window.master);
 
-    window.master.connect(window.context.destination)
+    window.master.connect(compressor);
+    compressor.connect(window.context.destination)
 
     feedback.gain.setValueAtTime(0, window.context.currentTime);
 
@@ -196,7 +199,10 @@ export function Piano () {
           onPress={note => noteOn(note[0])}
           onOff={(note) => noteOff(note[0])}
         ></Keys>
-        <Visualizer />
+        <div style={{display: 'flex'}}>
+          <Visualizer type="domain" />
+          <Visualizer type="frequency" />
+        </div>
       </div>
 
       <div className="Controls" style={{display: 'flex'}}>
